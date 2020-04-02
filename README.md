@@ -38,7 +38,7 @@ Messenger: McMelon Tube\
    [Submit new issue](https://github.com/McMelonTV/SumoPMMP/issues/new)\
    \
    **Pull requests:**\
-   [New pull request](https://github.com/McMelonTV/SumoPMMP/pulls/new)\
+   [New pull request](https://github.com/McMelonTV/SumoPMMP/pull/new/master)\
    [Pull requests](https://github.com/McMelonTV/SumoPMMP/pulls)\
    \
 **My Minecraft Pocketmine server:**\
