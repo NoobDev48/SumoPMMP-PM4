@@ -1,6 +1,4 @@
 # Sumo Plugin for Pocketmine MP
-**CAN SOMEONE HELP ME WITH THIS ERROR?**\
-Syntax error detected in src/jack/sumo/commands/SumoCommand.php:\
 \
 **Features:**\
 Supports last Pocketmine API\
