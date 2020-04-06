@@ -1,7 +1,7 @@
 # Sumo Plugin for Pocketmine MP
 \
 **Features:**\
-Pocketmine Bedrock Edition 1.14 support
+Pocketmine Bedrock Edition 1.14 support\
 \
 **Commands:**\
 /sumo help - shows all sumo commands\
