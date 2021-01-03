@@ -17,4 +17,11 @@ PocketMine-MP for Minecraft Bedrock Edition 1.16.201 support\
    setspawn 1 - sets first player's spawn\
    setspawn 2 - sets second player's spawn\
    joinsign - sets joinsign (break a sign to set)\
-   enable - enables an arena
+   enable - enables an arena\
+\
+**Download:**\
+[<img src="https://poggit.pmmp.io/ci.shield/McMelonTV/SumoPMMP/~" width="100" height="25" />](https://poggit.pmmp.io/ci/McMelonTV/SumoPMMP/~)\
+\
+   **Issues:**\
+   [Move to issues](https://github.com/McMelonTV/SumoPMMP/issues)\
+   [Submit new issue](https://github.com/McMelonTV/SumoPMMP/issues/new)
