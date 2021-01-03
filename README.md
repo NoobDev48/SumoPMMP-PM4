@@ -20,6 +20,8 @@ PocketMine-MP for Minecraft Bedrock Edition 1.16.201 support\
    enable - enables an arena\
 \
 **Download:**\
+[Click Here](https://github.com/McMelonTV/SumoPMMP/releases/download/v1.0.1-beta/SumoPMMP.phar)\
+\
 [<img src="https://poggit.pmmp.io/ci.shield/McMelonTV/SumoPMMP/~" width="100" height="25" />](https://poggit.pmmp.io/ci/McMelonTV/SumoPMMP/~)\
 \
    **Issues:**\
