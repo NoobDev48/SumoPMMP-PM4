@@ -1,7 +1,7 @@
 name: SumoByMcMelonTV
 api: 3.0.0
 version: 1.0.0
-main: McMelon\sumo\Sumo
+main: jack\sumo\Sumo
 
 permissions:
   1vs1.cmd:
