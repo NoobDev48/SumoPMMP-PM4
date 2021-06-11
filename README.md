@@ -1,3 +1,6 @@
+# THIS PROJECT HAS BEEN ABANDONED, IF YOU WANT TO CONTACT ME, DM ME ON Discord: McMelon#9999 or email mcmelontv.email@gmail.com
+
+
 # Sumo Plugin for Pocketmine MP
 \
 **Features:**\
