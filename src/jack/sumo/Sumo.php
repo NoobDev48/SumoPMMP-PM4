@@ -8,7 +8,7 @@ use pocketmine\command\Command;
 use pocketmine\event\block\BlockBreakEvent;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerChatEvent;
-use pocketmine\Player;
+use pocketmine\player\Player;
 use pocketmine\plugin\PluginBase;
 use jack\sumo\arena\Arena;
 use jack\sumo\commands\SumoCommand;
@@ -39,18 +39,18 @@ class Sumo extends PluginBase implements Listener {
     /** @var int[] $setupData */
     public $setupData = [];
 
-    public function onLoad() {
+    public function onLoad(): void {
         $this->dataProvider = new YamlDataProvider($this);
     }
 
-    public function onEnable() {
+    public function onEnable(): void {
         $this->getServer()->getPluginManager()->registerEvents($this, $this);
         $this->dataProvider->loadArenas();
         $this->emptyArenaChooser = new EmptyArenaChooser($this);
         $this->getServer()->getCommandMap()->register("sumo", $this->commands[] = new SumoCommand($this));
     }
 
-    public function onDisable() {
+    public function onDisable(): void {
         $this->dataProvider->saveArenas();
     }
 
@@ -64,7 +64,7 @@ class Sumo extends PluginBase implements Listener {
             return;
         }
 
-        $event->setCancelled(\true);
+        $event->cancel();
         $args = explode(" ", $event->getMessage());
 
         /** @var Arena $arena */
@@ -84,7 +84,7 @@ class Sumo extends PluginBase implements Listener {
                     $player->sendMessage("§cUsage: §7level <levelName>");
                     break;
                 }
-                if(!$this->getServer()->isLevelGenerated($args[1])) {
+                if(!$this->getServer()->getWorldManager()->isWorldGenerated($args[1])) {
                     $player->sendMessage("§cLevel $args[1] does not found!");
                     break;
                 }
@@ -105,8 +105,8 @@ class Sumo extends PluginBase implements Listener {
                     break;
                 }
 
-                $arena->data["spawns"]["spawn-{$args[1]}"] = (new Vector3($player->getX(), $player->getY(), $player->getZ()))->__toString();
-                $player->sendMessage("§a> Spawn $args[1] set to X: " . (string)round($player->getX()) . " Y: " . (string)round($player->getY()) . " Z: " . (string)round($player->getZ()));
+                $arena->data["spawns"]["spawn-{$args[1]}"] = (new Vector3($player->getLocation()->getX(), $player->getLocation()->getY(), $player->getLocation()->getZ()))->__toString();
+                $player->sendMessage("§a> Spawn $args[1] set to X: " . (string)round($player->getLocation()->getX()) . " Y: " . (string)round($player->getLocation()->getY()) . " Z: " . (string)round($player->getLocation()->getZ()));
                 break;
             case "joinsign":
                 $player->sendMessage("§aBreak block to set join sign!");
@@ -147,10 +147,10 @@ class Sumo extends PluginBase implements Listener {
         if(isset($this->setupData[$player->getName()])) {
             switch ($this->setupData[$player->getName()]) {
                 case 0:
-                    $this->setters[$player->getName()]->data["joinsign"] = [(new Vector3($block->getX(), $block->getY(), $block->getZ()))->__toString(), $block->getLevel()->getFolderName()];
+                    $this->setters[$player->getName()]->data["joinsign"] = [(new Vector3($block->getLocation()->getX(), $block->getLocation()->getY(), $block->getLocation()->getZ()))->__toString(), $block->getPosition()->getWorld()->getFolderName()];
                     $player->sendMessage("§aJoin sign updated!");
                     unset($this->setupData[$player->getName()]);
-                    $event->setCancelled(\true);
+                    $event->cancel();
                     break;
             }
         }

@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace jack\sumo\arena;
 
 use pocketmine\block\Block;
-use pocketmine\event\entity\EntityLevelChangeEvent;
-use pocketmine\entity\{Effect, EffectInstance};
+use pocketmine\event\entity\EntityWorldChangeEvent;
+use pocketmine\entity\effect\EffectInstance;
+use pocketmine\effect\VanillaEffects;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerDeathEvent;
 use pocketmine\event\player\PlayerExhaustEvent;
@@ -14,11 +15,11 @@ use pocketmine\event\player\PlayerInteractEvent;
 use pocketmine\event\player\PlayerMoveEvent;
 use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\event\player\PlayerRespawnEvent;
-use pocketmine\item\Item;
-use pocketmine\level\Level;
-use pocketmine\level\Position;
-use pocketmine\Player;
-use pocketmine\tile\Tile;
+use pocketmine\item\VanillaItems;
+use pocketmine\world\World;
+use pocketmine\world\Position;
+use pocketmine\player\Player;
+use pocketmine\block\tile\Tile;
 use jack\sumo\event\PlayerArenaWinEvent;
 use jack\sumo\event\PlayerEquipEvent;
 use jack\sumo\math\Vector3;
@@ -60,7 +61,7 @@ class Arena implements Listener {
     /** @var Player[] $toRespawn */
     public $toRespawn = [];
 
-    /** @var Level $level */
+    /** @var World $level */
     public $level = null;
 
     /**
@@ -120,7 +121,7 @@ class Arena implements Listener {
         $player->getInventory()->clearAll();
         $player->getArmorInventory()->clearAll();
         $player->getCursorInventory()->clearAll();
-        $player->addEffect(new EffectInstance(Effect::getEffect(Effect::REGENERATION), (99999999*20), (3), (false)));
+        $player->addEffect(new EffectInstance(VanillaEffects::REGENERATION, (99999999*20), (3), (false)));
 
         $player->setGamemode($player::ADVENTURE);
         $player->setHealth(20);
@@ -151,17 +152,17 @@ class Arena implements Listener {
                 break;
         }
 
-        $player->removeAllEffects();
+        $player->getEffects()->clear();
 
         $player->setGamemode($this->plugin->getServer()->getDefaultGamemode());
 
         $player->setHealth(20);
-        $player->setFood(20);
+        $player->getHungerManager()->setFood(20);
         $player->getInventory()->clearAll();
         $player->getArmorInventory()->clearAll();
         $player->getCursorInventory()->clearAll();
 
-        $player->teleport($this->plugin->getServer()->getDefaultLevel()->getSpawnLocation());
+        $player->teleport($this->plugin->getServer()->getWorldManager()->getDefaultWorld()->getSpawnLocation());
 
         if(!$death) {
             $this->broadcastMessage("§l§bGame §r§l>> §r§ePlayer {$player->getName()} Left the game. §7[".count($this->players)."/{$this->data["slots"]}]");
@@ -281,7 +282,7 @@ class Arena implements Listener {
         if(!$player instanceof Player) return;
 
         if($this->inGame($player) && $this->phase == self::PHASE_LOBBY) {
-            $event->setCancelled(true);
+            $event->cancel(true);
         }
     }
 
@@ -293,17 +294,17 @@ class Arena implements Listener {
         $block = $event->getBlock();
 
         if($this->inGame($player) && $event->getBlock()->getId() == Block::CHEST && $this->phase == self::PHASE_LOBBY) {
-            $event->setCancelled(\true);
+            $event->cancel(true);
             return;
         }
 
-        if(!$block->getLevel()->getTile($block) instanceof Tile) {
+        if(!$block->getPosition()->getWorld()->getTile($block) instanceof Tile) {
             return;
         }
 
-        $signPos = Position::fromObject(Vector3::fromString($this->data["joinsign"][0]), $this->plugin->getServer()->getLevelByName($this->data["joinsign"][1]));
+        $signPos = Position::fromObject(Vector3::fromString($this->data["joinsign"][0]), $this->plugin->getServer()->getWorldManager()->getWorldByName($this->data["joinsign"][1]));
 
-        if((!$signPos->equals($block)) || $signPos->getLevel()->getId() != $block->getLevel()->getId()) {
+        if((!$signPos->equals($block)) || $signPos->getPosition()->getWorld()->getId() != $block->getPosition()->getWorld()->getId()) {
             return;
         }
 
@@ -332,7 +333,7 @@ class Arena implements Listener {
         if(!$this->inGame($player)) return;
 
         foreach ($event->getDrops() as $item) {
-            $player->getLevel()->dropItem($player, $item);
+            $player->getWorld()->dropItem($player, $item);
         }
         $this->toRespawn[$player->getName()] = $player;
         $this->disconnectPlayer($player, "", true);
@@ -347,7 +348,7 @@ class Arena implements Listener {
     public function onRespawn(PlayerRespawnEvent $event) {
         $player = $event->getPlayer();
         if(isset($this->toRespawn[$player->getName()])) {
-            $event->setRespawnPosition($this->plugin->getServer()->getDefaultLevel()->getSpawnLocation());
+            $event->setRespawnPosition($this->plugin->getServer()->getWorldManager()->getDefaultWorld()->getSpawnLocation());
             unset($this->toRespawn[$player->getName()]);
         }
     }
@@ -361,10 +362,7 @@ class Arena implements Listener {
         }
     }
 
-    /**
-     * @param EntityLevelChangeEvent $event
-     */
-    public function onLevelChange(EntityLevelChangeEvent $event) {
+    public function onLevelChange(EntityWorldChangeEvent $event) {
         $player = $event->getEntity();
         if(!$player instanceof Player) return;
         if($this->inGame($player)) {
@@ -384,18 +382,18 @@ class Arena implements Listener {
         if(!$restart) {
             $this->plugin->getServer()->getPluginManager()->registerEvents($this, $this->plugin);
 
-            if(!$this->plugin->getServer()->isLevelLoaded($this->data["level"])) {
-                $this->plugin->getServer()->loadLevel($this->data["level"]);
+            if(!$this->plugin->getServer()->getWorldManager()->isWorldLoaded($this->data["level"])) {
+                $this->plugin->getServer()->getWorldManager()->loadWorld($this->data["level"]);
             }
 
-            $this->level = $this->plugin->getServer()->getLevelByName($this->data["level"]);
+            $this->level = $this->plugin->getServer()->getWorldManager()->getWorldByName($this->data["level"]);
         }
 
         else {
             $this->scheduler->reloadTimer();
         }
 
-        if(!$this->level instanceof Level) $this->level = $this->plugin->getServer()->getLevelByName($this->data["level"]);
+        if(!$this->level instanceof World) $this->level = $this->plugin->getServer()->getWorldManager()->getWorldByName($this->data["level"]);
 
         $this->phase = static::PHASE_LOBBY;
         $this->players = [];
@@ -412,13 +410,13 @@ class Arena implements Listener {
         if($this->data["level"] == null) {
             return false;
         }
-        if(!$this->plugin->getServer()->isLevelGenerated($this->data["level"])) {
+        if(!$this->plugin->getServer()->getWorldManager()->isWorldGenerated($this->data["level"])) {
             return false;
         }
         else {
-            if(!$this->plugin->getServer()->isLevelLoaded($this->data["level"]))
-                $this->plugin->getServer()->loadLevel($this->data["level"]);
-            $this->level = $this->plugin->getServer()->getLevelByName($this->data["level"]);
+            if(!$this->plugin->getServer()->getWorldManager()->isWorldLoaded($this->data["level"]))
+                $this->plugin->getServer()->getWorldManager()->loadWorld($this->data["level"]);
+            $this->level = $this->plugin->getServer()->getWorldManager()->getWorldByName($this->data["level"]);
         }
         if(!is_int($this->data["slots"])) {
             return false;

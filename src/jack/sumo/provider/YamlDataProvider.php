@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace jack\sumo\provider;
 
-use pocketmine\level\Level;
+use pocketmine\world\World;
 use pocketmine\utils\Config;
 use jack\sumo\arena\Arena;
 use jack\sumo\Sumo;
@@ -31,19 +31,19 @@ class YamlDataProvider {
     }
 
     public function init() {
-        if(!is_dir($this->getDataFolder())) {
-            @mkdir($this->getDataFolder());
+        if(!is_dir($this->plugin->getDataFolder())) {
+            @mkdir($this->plugin->getDataFolder());
         }
-        if(!is_dir($this->getDataFolder() . "arenas")) {
-            @mkdir($this->getDataFolder() . "arenas");
+        if(!is_dir($this->plugin->getDataFolder() . "arenas")) {
+            @mkdir($this->plugin->getDataFolder() . "arenas");
         }
-        if(!is_dir($this->getDataFolder() . "saves")) {
-            @mkdir($this->getDataFolder() . "saves");
+        if(!is_dir($this->plugin->getDataFolder() . "saves")) {
+            @mkdir($this->plugin->getDataFolder() . "saves");
         }
     }
 
     public function loadArenas() {
-        foreach (glob($this->getDataFolder() . "arenas" . DIRECTORY_SEPARATOR . "*.yml") as $arenaFile) {
+        foreach (glob($this->plugin->getDataFolder() . "arenas" . DIRECTORY_SEPARATOR . "*.yml") as $arenaFile) {
             $config = new Config($arenaFile, Config::YAML);
             $this->plugin->arenas[basename($arenaFile, ".yml")] = new Arena($this->plugin, $config->getAll(\false));
         }

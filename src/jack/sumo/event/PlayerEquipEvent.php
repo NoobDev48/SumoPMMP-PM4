@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace jack\sumo\event;
 
 use pocketmine\event\plugin\PluginEvent;
-use pocketmine\Player;
+use pocketmine\player\Player;
 use jack\sumo\arena\Arena;
 use jack\sumo\Sumo;
 

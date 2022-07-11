@@ -6,8 +6,7 @@ namespace jack\sumo\commands;
 
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
-use pocketmine\command\PluginIdentifiableCommand;
-use pocketmine\Player;
+use pocketmine\player\Player;
 use pocketmine\plugin\Plugin;
 use pocketmine\plugin\PluginBase;
 use jack\sumo\arena\Arena;
@@ -17,7 +16,7 @@ use jack\sumo\Sumo;
  * Class OneVsOneCommand
  * @package onevsone\commands
  */
-class SumoCommand extends Command implements PluginIdentifiableCommand {
+class SumoCommand extends Command {
 
     /** @var OneVsOne $plugin */
     protected $plugin;
@@ -28,7 +27,7 @@ class SumoCommand extends Command implements PluginIdentifiableCommand {
      */
     public function __construct(Sumo $plugin) {
         $this->plugin = $plugin;
-        parent::__construct("sumo", "Sumo commands", \null, ["sumo"]);
+        parent::__construct("sumo", "Sumo commands", null, ["sumo"]);
     }
 
     /**
@@ -92,7 +91,7 @@ class SumoCommand extends Command implements PluginIdentifiableCommand {
                 $arena = $this->plugin->arenas[$args[1]];
 
                 foreach ($arena->players as $player) {
-                    $player->teleport($this->plugin->getServer()->getDefaultLevel()->getSpawnLocation());
+                    $player->teleport($this->plugin->getWorldManager()->getDefaultWorld()->getSafeSpawn());
                 }
 
                 if(is_file($file = $this->plugin->getDataFolder() . "arenas" . DIRECTORY_SEPARATOR . $args[1] . ".yml")) unlink($file);
@@ -168,11 +167,6 @@ class SumoCommand extends Command implements PluginIdentifiableCommand {
 
     }
 
-    /**
-     * @return OneVsOne|Plugin $plugin
-     */
-    public function getPlugin(): Plugin {
-        return $this->plugin;
-    }
+
 
 }
